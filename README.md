@@ -78,6 +78,23 @@ adapt the plan live.
 Config env vars: `DATABASE_URL`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`,
 `CORS_ORIGINS`.
 
+## Deploy
+
+Split deploy — backend on Render, frontend on Vercel:
+
+1. **Backend → Render:** Dashboard → *New → Blueprint* → select this repo.
+   `render.yaml` provisions `onboarding-agent-api` (free tier, health check at
+   `/api/health`). When prompted, set `CORS_ORIGINS` to your Vercel frontend
+   origin; `ANTHROPIC_API_KEY` is optional (mock mode without it).
+   Note: the free tier uses ephemeral disk, so the SQLite DB resets on restart —
+   add a persistent disk or swap `DATABASE_URL` for Postgres to keep state.
+2. **Frontend → Vercel:** *Add New → Project* → import this repo, set the root
+   directory to `frontend`, and add env var
+   `VITE_API_URL=https://<your-service>.onrender.com` (origin only — the app
+   appends `/api`; see `frontend/.env.example`).
+3. Update `CORS_ORIGINS` on Render to your final `https://<app>.vercel.app`
+   origin if you didn't know it at step 1.
+
 ## Tests & evals
 
 ```bash
